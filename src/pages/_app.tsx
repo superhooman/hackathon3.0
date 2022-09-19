@@ -5,17 +5,53 @@ import { withTRPC } from "@trpc/next";
 import { SessionProvider } from "next-auth/react";
 import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
+import { GlobalStyles } from '@mui/system';
+import type { Theme } from '@mui/joy/styles';
+import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import type { AppRouter } from "../server/router";
-import "../styles/globals.css";
+import { CartProvider } from "../context/cart";
+
+const theme = extendTheme({
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: {
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
+        }
+      }
+    }
+  }
+})
 
 const MyApp: AppType = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+    <CssVarsProvider theme={theme}>
+      <GlobalStyles<Theme>
+        styles={(theme) => ({
+          body: {
+            margin: 0,
+            fontFamily: theme.vars.fontFamily.body,
+          },
+        })}
+      />
+      <SessionProvider session={session}>
+        <CartProvider>
+          <Component {...pageProps} />
+        </CartProvider>
+      </SessionProvider>
+    </CssVarsProvider>
   );
 };
 
